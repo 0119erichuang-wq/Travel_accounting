@@ -12,8 +12,8 @@
     <title>✈️ 隨身旅遊記帳</title>
     
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
 
     <style>
         /* 主題變數 */
@@ -121,12 +121,11 @@
             border-radius: 16px; 
             box-shadow: 0 8px 20px var(--card-shadow); 
             transition: background-color 0.3s;
-            position: relative; /* 為了讓主題按鈕可以絕對定位 */
+            position: relative;
         }
 
         h2 { text-align: center; margin: 10px 0 20px 0; font-size: 22px; }
         
-        /* 🔥 右上角主題按鈕設計 🔥 */
         .theme-btn-container {
             position: absolute;
             top: 16px;
@@ -153,7 +152,6 @@
             box-shadow: 0 1px 3px var(--card-shadow);
         }
 
-        /* 隱藏的下拉選單，點擊按鈕時會顯示 */
         .theme-dropdown {
             position: absolute;
             top: 45px;
@@ -162,7 +160,7 @@
             border: 1px solid var(--border-color);
             border-radius: 12px;
             box-shadow: 0 4px 12px var(--card-shadow);
-            display: none; /* 預設隱藏 */
+            display: none; 
             flex-direction: column;
             z-index: 100;
             overflow: hidden;
@@ -170,7 +168,7 @@
         }
 
         .theme-dropdown.show {
-            display: flex; /* 加上 show 類別時顯示 */
+            display: flex; 
         }
 
         .theme-option {
@@ -384,12 +382,10 @@
         loadFromStorage();
     };
 
-    // 🎨 控制主題選單的顯示/隱藏
     function toggleThemeMenu() {
         document.getElementById('theme-menu').classList.toggle('show');
     }
 
-    // 點擊畫面其他地方時關閉主題選單
     window.onclick = function(event) {
         if (!event.target.matches('.theme-btn') && !event.target.matches('.theme-option')) {
             const dropdowns = document.getElementsByClassName("theme-dropdown");
@@ -402,15 +398,12 @@
         }
     }
 
-    // 🎨 選擇並應用主題
     function selectTheme(theme) {
         document.body.className = 'theme-' + theme;
         localStorage.setItem('travel_theme', theme);
         
-        // 隱藏選單
         document.getElementById('theme-menu').classList.remove('show');
 
-        // 更新手機狀態列顏色
         setTimeout(() => {
             const bgColor = getComputedStyle(document.body).getPropertyValue('background-color');
             document.getElementById('meta-theme-color').setAttribute('content', bgColor);
