@@ -16,9 +16,9 @@
     <link rel="icon" type="image/png" href="icon.png">
 
     <style>
-        /* 定義主題變數 */
+        /* 主題變數 */
         :root {
-            /* 預設：淺色 */
+            /* 淺色 */
             --bg-color: #f4f7f6;
             --card-bg: #ffffff;
             --text-color: #333333;
@@ -121,14 +121,80 @@
             border-radius: 16px; 
             box-shadow: 0 8px 20px var(--card-shadow); 
             transition: background-color 0.3s;
+            position: relative; /* 為了讓主題按鈕可以絕對定位 */
         }
 
         h2 { text-align: center; margin: 10px 0 20px 0; font-size: 22px; }
         
+        /* 🔥 右上角主題按鈕設計 🔥 */
+        .theme-btn-container {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+        }
+        
+        .theme-btn {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 3px 6px var(--card-shadow);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        
+        .theme-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 3px var(--card-shadow);
+        }
+
+        /* 隱藏的下拉選單，點擊按鈕時會顯示 */
+        .theme-dropdown {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--card-shadow);
+            display: none; /* 預設隱藏 */
+            flex-direction: column;
+            z-index: 100;
+            overflow: hidden;
+            width: 150px;
+        }
+
+        .theme-dropdown.show {
+            display: flex; /* 加上 show 類別時顯示 */
+        }
+
+        .theme-option {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: var(--text-color);
+            background: none;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .theme-option:hover {
+            background-color: var(--input-bg);
+        }
+
+        .theme-option:not(:last-child) {
+            border-bottom: 1px solid var(--border-color);
+        }
+
         .form-group { margin-bottom: 14px; }
         label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 14px; }
         
-        /* 🔥 輸入項目：凹進挖空效果 🔥 */
         input, select { 
             width: 100%; 
             padding: 14px; 
@@ -139,7 +205,6 @@
             color: var(--text-color);
             appearance: none; 
             -webkit-appearance: none; 
-            /* 核心：內部陰影創造挖空感 */
             box-shadow: inset 2px 4px 6px var(--inset-shadow), inset -2px -2px 4px rgba(255,255,255,0.1);
             transition: all 0.3s;
         }
@@ -159,7 +224,6 @@
         .row { display: flex; gap: 10px; }
         .row .form-group { flex: 1; }
 
-        /* 🔥 按鈕：凸出立體化效果 🔥 */
         .btn-add { 
             width: 100%; 
             padding: 14px; 
@@ -171,12 +235,10 @@
             cursor: pointer; 
             font-weight: bold; 
             margin-top: 10px; 
-            /* 核心：底部厚度與外部陰影創造 3D 凸起感 */
             box-shadow: 0 6px 0 var(--btn-shadow), 0 10px 15px rgba(0,0,0,0.15);
             transform: translateY(0);
             transition: transform 0.1s, box-shadow 0.1s;
         }
-        /* 按下時的凹陷反應 */
         .btn-add:active {
             box-shadow: 0 0 0 var(--btn-shadow), 0 2px 5px rgba(0,0,0,0.2);
             transform: translateY(6px);
@@ -203,7 +265,6 @@
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            /* 卡片微微凸起 */
             box-shadow: 0 3px 6px var(--card-shadow);
         }
         .card-info { flex-grow: 1; padding-right: 8px; }
@@ -214,7 +275,6 @@
         .amt-foreign { font-size: 13px; color: var(--text-muted); }
         .amt-twd { font-weight: bold; font-size: 16px; }
         
-        /* 刪除按鈕也做微立體 */
         .btn-delete { 
             background: #ff4757; 
             color: white; 
@@ -241,16 +301,16 @@
 <div class="container">
     <h2>✈️ 隨身旅遊記帳</h2>
     
-    <div class="form-group">
-        <label for="theme-selector">🎨 介面主題顏色：</label>
-        <select id="theme-selector" onchange="changeTheme()">
-            <option value="light">⚪ 淺色 (預設)</option>
-            <option value="dark">⚫ 暗色 (深色模式)</option>
-            <option value="lightblue">💧 淡藍色</option>
-            <option value="lightpurple">🔮 淡紫色</option>
-            <option value="darkblue">🌌 深藍色</option>
-            <option value="gray">🗿 灰色</option>
-        </select>
+    <div class="theme-btn-container">
+        <button class="theme-btn" onclick="toggleThemeMenu()">🎨</button>
+        <div class="theme-dropdown" id="theme-menu">
+            <button class="theme-option" onclick="selectTheme('light')">⚪ 淺色</button>
+            <button class="theme-option" onclick="selectTheme('dark')">⚫ 暗色</button>
+            <button class="theme-option" onclick="selectTheme('lightblue')">💧 淡藍色</button>
+            <button class="theme-option" onclick="selectTheme('lightpurple')">🔮 淡紫色</button>
+            <button class="theme-option" onclick="selectTheme('darkblue')">🌌 深藍色</button>
+            <button class="theme-option" onclick="selectTheme('gray')">🗿 灰色</button>
+        </div>
     </div>
 
     <div class="row">
@@ -324,24 +384,42 @@
         loadFromStorage();
     };
 
-    // ✨ 變更主題顏色與狀態列
-    function changeTheme() {
-        const theme = document.getElementById('theme-selector').value;
+    // 🎨 控制主題選單的顯示/隱藏
+    function toggleThemeMenu() {
+        document.getElementById('theme-menu').classList.toggle('show');
+    }
+
+    // 點擊畫面其他地方時關閉主題選單
+    window.onclick = function(event) {
+        if (!event.target.matches('.theme-btn') && !event.target.matches('.theme-option')) {
+            const dropdowns = document.getElementsByClassName("theme-dropdown");
+            for (let i = 0; i < dropdowns.length; i++) {
+                const openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+
+    // 🎨 選擇並應用主題
+    function selectTheme(theme) {
         document.body.className = 'theme-' + theme;
         localStorage.setItem('travel_theme', theme);
+        
+        // 隱藏選單
+        document.getElementById('theme-menu').classList.remove('show');
 
-        // 動態抓取背景色並更新手機狀態列顏色
+        // 更新手機狀態列顏色
         setTimeout(() => {
             const bgColor = getComputedStyle(document.body).getPropertyValue('background-color');
             document.getElementById('meta-theme-color').setAttribute('content', bgColor);
         }, 50);
     }
 
-    // 初始化時讀取主題
     function loadTheme() {
         const savedTheme = localStorage.getItem('travel_theme') || 'light';
-        document.getElementById('theme-selector').value = savedTheme;
-        changeTheme();
+        selectTheme(savedTheme);
     }
 
     function updateExchangeRate() {
