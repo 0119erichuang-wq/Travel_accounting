@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>✈️ 隨身旅遊記帳</title>
+    
+    <!-- 🚀 補上手機安裝成桌面 App (PWA) 所需的關鍵設定連結 -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 0;
+            padding: 12px;
+            font-size: 16px;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin: 10px 0 20px 0;
+            font-size: 22px;
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #555;
+            font-size: 14px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            background-color: #fff;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        select {
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M0 3l5 5 5-5z' fill='%23666'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 12px;
+            padding-right: 30px;
+        }
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+        .row .form-group {
+            flex: 1;
+        }
+        .btn-add {
+            width: 100%;
+            padding: 14px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.2);
+        }
+        .summary {
+            background: linear-gradient(135deg, #1ad1d7 0%, #008da5 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .summary div {
+            margin-bottom: 6px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .summary .total-twd {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            padding-top: 10px;
+            opacity: 1;
+        }
+        .record-list {
+            margin-top: 15px;
+        }
+        .record-card {
+            background: #fdfdfd;
+            border: 1px solid #eaeaea;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-info {
+            flex-grow: 1;
+            padding-right: 8px;
+        }
+        .card-title {
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 2px;
+        }
+        .card-detail {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 4px;
+        }
+        .card-time {
+            font-size: 11px;
+            color: #999;
+        }
+        .card-amount {
+            text-align: right;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .amt-foreign {
+            font-size: 13px;
+            color: #666;
+        }
+        .amt-twd {
+            font-weight: bold;
+            color: #e74c3c;
+            font-size: 16px;
+        }
+        .btn-delete {
+            background: #ff7675;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+        }
+        .btn-clear {
+            background: none;
+            border: 1px solid #ff7675;
+            color: #ff7675;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>✈️ 隨身旅遊記帳</h2>
+    
+    <div class="row">
+        <div class="form-group">
+            <label for="currency">1. 選擇國家貨幣：</label>
+            <select id="currency" onchange="updateExchangeRate()">
+                <option value="0.21" data-name="日圓 (JPY)">🇯🇵 日圓 (JPY)</option>
+                <option value="0.024" data-name="韓元 (KRW)">🇰🇷 韓元 (KRW)</option>
+                <option value="32.5" data-name="美金 (USD)">🇺🇸 美金 (USD)</option>
+                <option value="35.0" data-name="歐元 (EUR)">🇪🇺 歐元 (EUR)</option>
+                <option value="4.5" data-name="人民幣 (CNY)">🇨🇳 人民幣 (CNY)</option>
+                <option value="0.0012" data-name="越南盾 (VND)">🇻🇳 越南盾 (VND)</option>
+                <option value="24.6" data-name="新加坡幣 (SGD)">🇸🇬 新加坡幣 (SGD)</option>
+                <option value="0.96" data-name="泰銖 (THB)">🇹🇭 泰銖 (THB)</option>
+                <option value="0.52" data-name="菲律賓披索 (PHP)">🇵🇭 菲律賓披索 (PHP)</option>
+                <option value="1" data-name="新台幣 (TWD)">🇹🇼 新台幣 (TWD)</option>
+            </select>
+        </div>
+        <div class="form-group" style="flex: 0.7;">
+            <label for="rate">目前匯率：</label>
+            <input type="number" id="rate" value="0.21" step="0.000001">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="time">消費時間：</label>
+        <input type="datetime-local" id="time">
+    </div>
+
+    <hr style="border: 0; border-top: 1px dashed #ddd; margin: 15px 0;">
+
+    <div class="form-group">
+        <label for="category">2. 費用分類：</label>
+        <select id="category">
+            <option value="👤 導遊/團費">👤 導遊/團費</option>
+            <option value="🚗 交通機票">🚗 交通機票</option>
+            <option value="🏨 飯店住宿">🏨 飯店住宿</option>
+            <option value="🍽️ 美食餐飲">🍽️ 美食餐飲</option>
+            <option value="🛍️ 購物瞎拼">🛍️ 購物瞎拼</option>
+            <option value="🎟️ 門票行程">🎟️ 門票行程</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="detail">詳細說明：</label>
+        <input type="text" id="detail" placeholder="例如：導遊小費 / 晚餐拉麵">
+    </div>
+
+    <div class="form-group">
+        <label for="amount">外幣金額：</label>
+        <input type="number" id="amount" placeholder="請輸入當地消費金額" inputmode="decimal">
+    </div>
+
+    <button class="btn-add" onclick="addRecord()">➕ 新增這筆消費</button>
+
+    <div class="summary">
+        <div>幣別：<span id="current-currency-text" style="font-weight:bold;">日圓 (JPY)</span></div>
+        <div>外幣總計：<span id="total-foreign" style="font-weight:bold;">0</span></div>
+        <div class="total-twd">台幣總計：NT$ <span id="total-twd">0</span></div>
+    </div>
+
+    <div class="header-section">
+        <h3 style="margin:0; font-size:16px;">📋 消費明細 (依時間排序)</h3>
+        <button class="btn-clear" onclick="clearAll()">全部清空</button>
+    </div>
+    
+    <div class="record-list" id="record-container"></div>
+</div>
+
+<script>
+    let records = [];
+
+    window.onload = function() {
+        setNowTime();
+        loadFromStorage();
+    };
+
+    function setNowTime() {
+        const now = new Date();
+        const offset = now.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+        document.getElementById('time').value = localISOTime;
+    }
+
+    // ✨ 修正後的文字切換邏輯，精準抓取 option 的 data-name
+    function updateExchangeRate() {
+        const currencySelect = document.getElementById('currency');
+        const selectedOption = currencySelect.options[currencySelect.selectedIndex];
+        document.getElementById('rate').value = selectedOption.value;
+        document.getElementById('current-currency-text').innerText = selectedOption.getAttribute('data-name');
+    }
+
+    function saveToStorage() {
+        localStorage.setItem('travel_records', JSON.stringify(records));
+    }
+
+    function loadFromStorage() {
+        const stored = localStorage.getItem('travel_records');
+        if (stored) {
+            records = JSON.parse(stored);
+            render();
+        }
+    }
+
+    function addRecord() {
+        const category = document.getElementById('category').value;
+        const detail = document.getElementById('detail').value || "未填寫說明";
+        const amount = parseFloat(document.getElementById('amount').value);
+        const rate = parseFloat(document.getElementById('rate').value);
+        const timeInput = document.getElementById('time').value;
+
+        if (isNaN(amount) || amount <= 0) {
+            alert("請輸入正確的金額喔！");
+            return;
+        }
+
+        let formattedTime = "未設時間";
+        if(timeInput) {
+            const t = new Date(timeInput);
+            formattedTime = `${t.getFullYear()}/${String(t.getMonth()+1).padStart(2,'0')}/${String(t.getDate()).padStart(2,'0')} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+        }
+
+        const twdAmt = Math.round(amount * rate);
+
+        const newRecord = {
+            id: Date.now(),
+            timeValue: timeInput ? new Date(timeInput).getTime() : 0,
+            timeStr: formattedTime,
+            category: category,
+            detail: detail,
+            amount: amount,
+            twdAmt: twdAmt
+        };
+
+        records.push(newRecord);
+        records.sort((a, b) => a.timeValue - b.timeValue);
+        
+        saveToStorage();
+        render();
+
+        document.getElementById('detail').value = "";
+        document.getElementById('amount').value = "";
+        setNowTime();
+        document.activeElement.blur();
+    }
+
+    function deleteRecord(id) {
+        records = records.filter(r => r.id !== id);
+        saveToStorage();
+        render();
+    }
+
+    function clearAll() {
+        if(confirm("確定要清空所有記帳紀錄嗎？（清除後無法復原喔！）")) {
+            records = [];
+            localStorage.removeItem('travel_records');
+            render();
+        }
+    }
+
+    function render() {
+        const container = document.getElementById('record-container');
+        container.innerHTML = "";
+
+        let totalForeign = 0;
+        let totalTwd = 0;
+
+        records.forEach(r => {
+            totalForeign += r.amount;
+            totalTwd += r.twdAmt;
+
+            const card = document.createElement('div');
+            card.className = 'record-card';
+            card.innerHTML = `
+                <div class="card-info">
+                    <div class="card-title">${r.category}</div>
+                    <div class="card-detail">${r.detail}</div>
+                    <div class="card-time">📅 ${r.timeStr}</div>
+                </div>
+                <div class="card-amount">
+                    <div class="amt-foreign">${r.amount.toLocaleString()}</div>
+                    <div class="amt-twd">NT$ ${r.twdAmt.toLocaleString()}</div>
+                </div>
+                <button class="btn-delete" onclick="deleteRecord(${r.id})">刪除</button>
+            `;
+            container.appendChild(card);
+        });
+
+        document.getElementById('total-foreign').innerText = totalForeign.toLocaleString();
+        document.getElementById('total-twd').innerText = totalTwd.toLocaleString();
+    }
+</script>
+
+</body>
+</html>
